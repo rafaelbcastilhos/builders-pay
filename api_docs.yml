@@ -1,0 +1,192 @@
+openapi: 3.0.0
+
+schemes:
+  - http
+  - https
+
+host: localhost:8080
+
+info:
+  version: 1.0.0
+  title: Builders Pay Api
+tags:
+  - name: Auth
+  - name: Payment
+  - name: BankSlip
+
+paths:
+  '/auth':
+    post:
+      tags:
+        - Auth
+      summary: Gera Token de acesso as APIs
+      description: Gera Token de acesso as APIs
+      operationId: auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Auth'
+      responses:
+        200:
+          description: Token is authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  '/bankslip':
+    post:
+      tags:
+        - BankSlip
+      summary: Consulta boleto
+      security:
+        - bearerAuth: []
+      description: Consulta boleto
+      operationId: bankslip
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankSlip'
+      responses:
+        200:
+          description: BankSlip is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankSlipResponse'
+
+
+  '/bankslip/payment':
+    post:
+      tags:
+        - Payment
+      summary: Valida boleto
+      security:
+        - bearerAuth: []
+      description: Valida boleto
+      operationId: validateBankSlip
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        200:
+          description: BankSlip is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Auth:
+      type: object
+      properties:
+        client_id:
+          example: "12345678-1234-1234-1234-123456789012"
+          format: uuid
+          type: string
+        client_secret:
+          example: "12345678-1234-1234-1234-123456789012"
+          format: uuid
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          example: "12345678-1234-1234-1234-123456789012"
+          format: uuid
+          type: string
+        expires_in:
+          example: "2020-07-15T20:45:23.506-0300"
+          format: date-time
+          type: string
+
+    BankSlip:
+      type: object
+      properties:
+        code:
+          example: "12345678-1234-1234-1234-123456789012"
+          format: uuid
+          type: string
+
+    BankSlipResponse:
+      type: object
+      properties:
+        code:
+          example: "12345678-1234-1234-1234-123456789012"
+          format: uuid
+          type: string
+        due_date:
+          example: "2020-07-15T"
+          format: date
+          type: string
+        amount:
+          example: 400.00
+          format: double
+          type: number
+        recipient_name:
+          example: Shop Yes Ltda
+          type: string
+        recipient_document:
+          example: 73615476000100
+          type: string
+        type:
+          example: NORMAL
+          type: string
+
+    Payment:
+      type: object
+      properties:
+        bar_code:
+          example: "12345678-1234-1234-1234-123456789012"
+          format: uuid
+          type: string
+        payment_date:
+          example: "2020-07-15T"
+          format: date
+          type: string
+
+    PaymentResponse:
+      type: object
+      properties:
+        id:
+          example: 1
+          format: int-32
+          type: number
+        originalAmount:
+          example: 260.00
+          format: double
+          type: number
+        amount:
+          example: 297.0318
+          format: double
+          type: number
+        dueDate:
+          example: "2020-07-15T"
+          format: date
+          type: string
+        paymentDate:
+          example: "2020-07-15T"
+          format: date
+          type: string
+        interestAmountCalculated:
+          example: 31.8318
+          format: double
+          type: number
+        fineAmountCalculated:
+          example: 5.2
+          format: double
+          type: number
